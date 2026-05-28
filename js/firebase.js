@@ -25,6 +25,10 @@ window.firebaseAddGallery = function(category, title, base64Url) {
 };
 
 // 2. Ambil Foto Galeri Utama
+// Global state untuk melacak indeks foto yang sedang aktif di lightbox
+let currentGalleryItems = [];
+let currentActiveIndex = 0;
+
 window.firebaseFetchGallery = function(currentTab) {
   const galleryRef = ref(db, 'gallery');
   const grid = document.getElementById('galleryGrid');
@@ -39,14 +43,15 @@ window.firebaseFetchGallery = function(currentTab) {
     }
 
     const items = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-    const filteredItems = items.filter(item => item.category === currentTab);
+    // Simpan item yang lolos filter ke array global untuk navigasi next/prev
+    currentGalleryItems = items.filter(item => item.category === currentTab);
 
-    if (filteredItems.length === 0) {
+    if (currentGalleryItems.length === 0) {
       grid.innerHTML = '<div class="gallery-loading">Belum ada foto di kategori ini.</div>';
       return;
     }
 
-    filteredItems.forEach(item => {
+    currentGalleryItems.forEach((item, index) => {
       const el = document.createElement('div');
       el.className = 'gallery-item';
       el.innerHTML = `
@@ -56,18 +61,61 @@ window.firebaseFetchGallery = function(currentTab) {
           <p>${item.category === 'sertif' ? 'Sertifikat' : 'Project'}</p>
         </div>
       `;
-      el.addEventListener('click', () => {
+      
+      // Menggunakan kombinasi klik ramah mobile
+      const openLightbox = () => {
         const lb = document.getElementById('lightbox');
-        if (lb) {
-          document.getElementById('lightboxImg').src = item.url;
+        const lbImg = document.getElementById('lightboxImg');
+        if (lb && lbImg) {
+          currentActiveIndex = index; // Catat indeks foto saat ini
+          lbImg.src = item.url;
           lb.classList.remove('hidden');
         }
-      });
+      };
+
+      el.addEventListener('click', openLightbox);
       grid.appendChild(el);
     });
   });
 };
 
+// Fungsi navigasi Next & Prev di Lightbox
+function navigateLightbox(direction) {
+  if (currentGalleryItems.length === 0) return;
+  
+  if (direction === 'next') {
+    currentActiveIndex = (currentActiveIndex + 1) % currentGalleryItems.length;
+  } else if (direction === 'prev') {
+    currentActiveIndex = (currentActiveIndex - 1 + currentGalleryItems.length) % currentGalleryItems.length;
+  }
+  
+  const lbImg = document.getElementById('lightboxImg');
+  if (lbImg) {
+    lbImg.src = currentGalleryItems[currentActiveIndex].url;
+  }
+}
+
+// Daftarkan event listener untuk tombol panah kiri-kanan setelah dokumen siap
+function initLightboxNav() {
+  const prevBtn = document.getElementById('lightboxPrev');
+  const nextBtn = document.getElementById('lightboxNext');
+  
+  if (prevBtn) {
+    prevBtn.onclick = (e) => { e.stopPropagation(); navigateLightbox('prev'); };
+    prevBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); navigateLightbox('prev'); };
+  }
+  if (nextBtn) {
+    nextBtn.onclick = (e) => { e.stopPropagation(); navigateLightbox('next'); };
+    nextBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); navigateLightbox('next'); };
+  }
+}
+
+// Jalankan initLightboxNav secara otomatis
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initLightboxNav);
+} else {
+  initLightboxNav();
+}
 // 3. Ambil Foto untuk Kelola Admin
 window.firebaseFetchManage = function(callback) {
   onValue(ref(db, 'gallery'), (snapshot) => {

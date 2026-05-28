@@ -526,27 +526,47 @@ footer p { color: var(--text3); font-size: 0.85rem; margin-bottom: 1.5rem; }
 #adminTrigger:hover { opacity: 1; background: var(--accent); color: #000; border-color: var(--accent); }
 
 /* ===== LIGHTBOX ===== */
+/* ===== LIGHTBOX NAVIGATION STYLING ===== */
 .lightbox {
-  position: fixed; inset: 0; z-index: 3000;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.9);
   display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
 }
-.lightbox.hidden { display: none; }
-.lightbox-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.92); cursor: pointer; }
-.lightbox img {
-  position: relative; z-index: 1;
-  max-width: 90vw; max-height: 90vh;
-  border-radius: 8px; object-fit: contain;
-}
-.lightbox-close {
-  position: absolute; top: 1.5rem; right: 1.5rem; z-index: 2;
-  width: 40px; height: 40px;
-  background: rgba(255,255,255,0.1); color: #fff;
-  border-radius: 50%; font-size: 1rem;
-  display: flex; align-items: center; justify-content: center;
-  transition: background var(--transition);
-}
-.lightbox-close:hover { background: var(--danger); }
+.lightbox.hidden { display: none !important; }
 
+/* Tombol Navigasi Kiri & Kanan */
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  font-size: 1.5rem;
+  padding: 15px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.3s, transform 0.2s;
+  z-index: 10000;
+}
+.lightbox-nav:hover, .lightbox-nav:active {
+  background: var(--primary, #00ffcc); /* Warna neon portofoliomu */
+  color: #000;
+}
+.prev-btn { left: 20px; }
+.next-btn { right: 20px; }
+
+/* Supaya di HP posisinya agak ke bawah/atas sedikit jika layar terlalu sempit */
+@media (max-width: 768px) {
+  .lightbox-nav {
+    padding: 10px 15px;
+    font-size: 1.2rem;
+  }
+  .prev-btn { left: 10px; }
+  .next-btn { right: 10px; }
+}
 /* ===== ANIMATIONS ===== */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
