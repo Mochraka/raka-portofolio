@@ -1,190 +1,153 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+// ===== FIREBASE CONFIG =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, serverTimestamp,
+  onSnapshot, orderBy, query, deleteDoc, doc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDczelrrthjduPoMdwCh155IgrR3oE2xOk",
   authDomain: "reviews-1aeab.firebaseapp.com",
-  databaseURL: "https://reviews-1aeab-default-rtdb.firebaseio.com/", 
   projectId: "reviews-1aeab",
   storageBucket: "reviews-1aeab.firebasestorage.app",
   messagingSenderId: "789047344632",
   appId: "1:789047344632:web:a6a6a67621b20bc9e0ea0d"
 };
 
-// Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const db = getFirestore(app);
 
-// ===== 1. LOGIKA UTAMA: AMBIL GALERI FOTO (DIOPTIMALKAN DENGAN THUMBNAIL) =====
-window.firebaseFetchGallery = function(currentTab) {
-  const galleryRef = ref(db, 'gallery');
-  const grid = document.getElementById('galleryGrid');
-  if (!grid) return;
+// ===== REVIEWS =====
+export const fetchReviews = () => {
+  const container = document.getElementById("reviews-container");
+  const q = query(collection(db, "reviews"), orderBy("timestamp", "desc"));
 
-  onValue(galleryRef, (snapshot) => {
-    grid.innerHTML = "";
-    const data = snapshot.val();
-    if (!data) {
-      grid.innerHTML = '<div class="gallery-loading">Belum ada foto di kategori ini.</div>';
-      return;
-    }
-
-    const items = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-    const filteredItems = items.filter(item => item.category === currentTab);
-
-    if (filteredItems.length === 0) {
-      grid.innerHTML = '<div class="gallery-loading">Belum ada foto di kategori ini.</div>';
-      return;
-    }
-
-    filteredItems.forEach(item => {
-      const el = document.createElement('div');
-      el.className = 'gallery-item';
-      el.innerHTML = `
-        <img src="${item.url}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/400x300?text=Gambar+Drive+Belum+Publik'"/>
-        <div class="gallery-overlay">
-          <h5>${item.title}</h5>
-          <p>${item.category === 'sertif' ? 'Sertifikat' : 'Project'}</p>
-        </div>
-      `;
-      el.addEventListener('click', () => {
-        const lb = document.getElementById('lightbox');
-        if (lb) {
-          document.getElementById('lightboxImg').src = item.url;
-          lb.classList.remove('hidden');
-        }
-      });
-      grid.appendChild(el);
-    });
-  });
-};
-
-// ===== 2. LOGIKA UTAMA: AMBIL & UPDATE KOMENTAR / REVIEWS (LANGSUNG TAMPIL) =====
-window.listenToReviews = function() {
-  const container = document.getElementById('reviews-container');
-  if (!container) return;
-
-  onValue(ref(db, 'reviews'), (snapshot) => {
+  onSnapshot(q, (snapshot) => {
     container.innerHTML = "";
-    const data = snapshot.val();
-    if (!data) {
-      container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Belum ada komentar.</p>';
+    if (snapshot.empty) {
+      container.innerHTML = `<p style="color:var(--text3);font-family:var(--font-mono);font-size:.85rem;text-align:center;padding:2rem;">Belum ada komentar. Jadilah yang pertama!</p>`;
       return;
     }
+    snapshot.forEach((docSnap) => {
+      const d = docSnap.data();
+      const stars = "★".repeat(Number(d.rating)) + "☆".repeat(5 - Number(d.rating));
+      const date = d.timestamp?.seconds
+        ? new Date(d.timestamp.seconds * 1000).toLocaleString("id-ID")
+        : "Baru saja";
 
-    const list = Object.keys(data).map(key => data[key]);
-    list.sort((a, b) => b.createdAt - a.createdAt);
-
-    list.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'review-card';
-      const stars = '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating);
+      const card = document.createElement("div");
+      card.className = "review-card";
       card.innerHTML = `
         <div class="review-header">
-          <span class="review-name">${item.name}</span>
-          <span class="review-stars" style="color:#ffcc00;">${stars}</span>
+          <span class="review-name">${escapeHtml(d.username)}</span>
+          <span class="review-stars">${stars}</span>
         </div>
-        <p class="review-msg">${item.message}</p>
+        <p class="review-text">${escapeHtml(d.review)}</p>
+        <span class="review-date">${date}</span>
       `;
       container.appendChild(card);
     });
   });
 };
 
-window.firebaseAddReview = function(username, rating, review) {
-  return push(ref(db, 'reviews'), {
-    name: username,
-    rating: parseInt(rating),
-    message: review,
-    createdAt: Date.now()
+export const addReview = async (username, rating, review) => {
+  await addDoc(collection(db, "reviews"), {
+    username, rating: Number(rating), review,
+    timestamp: serverTimestamp()
   });
 };
 
-// ===== 3. LOGIKA PANEL ADMIN: UPLOAD & MANAGE =====
-function initUploadFeature() {
-  const uploadBtn = document.getElementById("uploadBtn");
-  if (!uploadBtn) return;
+// ===== GALLERY =====
+let currentTab = "sertif";
 
-  uploadBtn.addEventListener("click", async () => {
-    const category = document.getElementById("uploadCategory").value;
-    const title = document.getElementById("uploadTitle").value.trim();
-    let url = document.getElementById("uploadUrl").value.trim();
-    const msg = document.getElementById("uploadMsg");
+export const fetchGallery = (tab = "sertif") => {
+  currentTab = tab;
+  const grid = document.getElementById("galleryGrid");
+  grid.innerHTML = `<div class="gallery-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat foto...</div>`;
 
-    if (!title || !url) {
-      msg.textContent = "Judul dan URL wajib diisi!";
-      msg.style.color = "#ff4a4a";
-      msg.classList.remove("hidden");
+  const q = query(
+    collection(db, "gallery"),
+    orderBy("createdAt", "desc")
+  );
+
+  onSnapshot(q, (snapshot) => {
+    grid.innerHTML = "";
+    const items = [];
+    snapshot.forEach(d => {
+      const data = { id: d.id, ...d.data() };
+      if (data.category === tab) items.push(data);
+    });
+
+    if (items.length === 0) {
+      grid.innerHTML = `<div class="gallery-empty">Belum ada foto di kategori ini.</div>`;
       return;
     }
 
-    // ===== AUTO CONVERT GOOGLE DRIVE KE THUMBNAIL RINGAN (600px) =====
-    if (url.includes("drive.google.com")) {
-      let fileId = "";
-      if (url.includes("/file/d/")) {
-        fileId = url.split("/file/d/")[1].split("/")[0];
-      } else if (url.includes("id=")) {
-        fileId = url.split("id=")[1].split("&")[0];
-      }
-
-      if (fileId) {
-        // Menggunakan jalur thumbnail agar web tidak berat/loading lama
-        url = `https://drive.google.com/thumbnail?sz=w600&id=${fileId}`;
-      } else {
-        msg.textContent = "Format link Drive tidak valid!";
-        msg.style.color = "#ff4a4a";
-        msg.classList.remove("hidden");
-        return;
-      }
-    }
-
-    try {
-      const galleryRef = ref(db, 'gallery');
-      await push(galleryRef, {
-        category: category,
-        title: title,
-        url: url,
-        createdAt: Date.now()
-      });
-
-      msg.textContent = "✓ Foto berhasil ditambahkan!";
-      msg.style.color = "#00ffcc";
-      msg.classList.remove("hidden");
-
-      document.getElementById("uploadTitle").value = "";
-      document.getElementById("uploadUrl").value = "";
-      setTimeout(() => msg.classList.add("hidden"), 3000);
-
-    } catch (err) {
-      console.error(err);
-      msg.textContent = "Gagal menyimpan. Cek Aturan/Rules DB.";
-      msg.style.color = "#ff4a4a";
-      msg.classList.remove("hidden");
-    }
-  });
-}
-
-window.firebaseFetchManage = function(callback) {
-  onValue(ref(db, 'gallery'), (snapshot) => {
-    const data = snapshot.val();
-    if (!data) { callback([]); return; }
-    callback(Object.keys(data).map(key => ({ id: key, ...data[key] })));
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "gallery-item";
+      div.onclick = () => openLightbox(item.url);
+      div.innerHTML = `
+        <img src="${item.url}" alt="${escapeHtml(item.title)}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x600?text=Foto+tidak+tersedia'"/>
+        <div class="gallery-item-label">${escapeHtml(item.title)}</div>
+      `;
+      grid.appendChild(div);
+    });
   });
 };
 
-window.firebaseDeleteGallery = function(id) {
-  return remove(ref(db, `gallery/${id}`));
+export const addGalleryItem = async (category, title, url) => {
+  await addDoc(collection(db, "gallery"), {
+    category, title, url,
+    createdAt: serverTimestamp()
+  });
 };
 
-// ===== 4. BAWAAN TRIGGER SAAT HALAMAN DIBUKA =====
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    initUploadFeature();
-    window.firebaseFetchGallery('sertif');
-    window.listenToReviews();
+export const deleteGalleryItem = async (id) => {
+  await deleteDoc(doc(db, "gallery", id));
+};
+
+export const fetchManageList = (renderFn) => {
+  const q = query(collection(db, "gallery"), orderBy("createdAt", "desc"));
+  onSnapshot(q, (snapshot) => {
+    const items = [];
+    snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
+    renderFn(items);
   });
-} else {
-  initUploadFeature();
-  window.firebaseFetchGallery('sertif');
-  window.listenToReviews();
+};
+
+// ===== HELPERS =====
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
+
+function openLightbox(url) {
+  const lb = document.getElementById("lightbox");
+  const img = document.getElementById("lightboxImg");
+  img.src = url;
+  lb.classList.remove("hidden");
+}
+
+window.closeLightbox = () => {
+  document.getElementById("lightbox").classList.add("hidden");
+  document.getElementById("lightboxImg").src = "";
+};
+
+// Expose untuk main.js
+window.firebaseAddReview = addReview;
+window.firebaseAddGallery = addGalleryItem;
+window.firebaseDeleteGallery = deleteGalleryItem;
+window.firebaseFetchManage = fetchManageList;
+window.firebaseFetchGallery = fetchGallery;
+window.openLightbox = openLightbox;
+
+// Auto init
+document.addEventListener("DOMContentLoaded", () => {
+  fetchReviews();
+  fetchGallery("sertif");
+});

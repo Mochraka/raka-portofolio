@@ -51,6 +51,7 @@ const stars = document.querySelectorAll("#starRating span");
 const ratingInput = document.getElementById("rating");
 let selectedRating = 5;
 
+// Default semua bintang aktif
 stars.forEach(s => s.classList.add("active"));
 
 stars.forEach(star => {
@@ -100,54 +101,48 @@ document.getElementById("reviewForm").addEventListener("submit", async (e) => {
 });
 
 // ===== EXPERIENCE DATA =====
+// Ganti/tambah data magang kamu di sini
 const experiences = [
   {
-    company: "MyArdiHome",
+    company: "PT. TELKOM INDONESIA",
     role: "Network Engineer Intern",
-    period: "November 2025 – Januari 2026",
-    desc: "Practical implementation of medium- to advanced-scale network infrastructure. Assisted in network cable installation and jointing processes. Supported network administration tasks and connectivity management.",
-    tags: ["Network Infrastructure", "Cable Installation", "Network Admin", "Connectivity"]
+    period: "Juli – September 2024",
+    desc: "Melakukan konfigurasi jaringan, monitoring trafik, dan maintenance infrastruktur jaringan perusahaan. Belajar routing OSPF dan konfigurasi VLAN pada perangkat Cisco.",
+    tags: ["Cisco", "OSPF", "VLAN", "Network Monitoring"]
   },
   {
-    company: "PT Kinarya Utama Teknik",
-    role: "Telecommunications Intern",
-    period: "Agustus - Oktober 2025",
-    desc: "Learned fundamentals of BTS power systems and tower network infrastructure. Studied telecommunications provider network operations and tower connectivity. Gained understanding of provider infrastructure used in field operations.",
-    tags: ["BTS", "Tower Network", "Telecommunications", "Power Systems"]
-  },
-  {
-    company: "PT Inara Digital Telekomunikasi",
-    role: "Network Intern",
-    period: "Juli - Desember 2024",
-    desc: "Observed and assisted in medium-scale network topology implementation. Deepened understanding of routing, switching, and network device management. Supported basic troubleshooting for network connectivity issues.",
-    tags: ["Routing", "Switching", "Network Topology", "Troubleshooting"]
+    company: "CV. DIGITAL CREATIVE",
+    role: "Web Developer Intern",
+    period: "Oktober – Desember 2024",
+    desc: "Membantu pengembangan website company profile dan landing page untuk klien. Menggunakan HTML, CSS, JavaScript, dan berkolaborasi dengan tim menggunakan Git.",
+    tags: ["HTML", "CSS", "JavaScript", "Git"]
   }
+  // Tambah data magang lain di sini
 ];
 
 const timeline = document.getElementById("expTimeline");
-if (timeline) {
-  experiences.forEach((exp, i) => {
-    const card = document.createElement("div");
-    card.className = "exp-card";
-    card.style.animationDelay = `${i * 0.1}s`;
-    card.innerHTML = `
-      <div class="exp-dot">${i + 1}</div>
-      <div class="exp-body">
-        <div class="exp-meta">
-          <span class="exp-company">${exp.company}</span>
-          <span class="exp-period">${exp.period}</span>
-        </div>
-        <div class="exp-role">${exp.role}</div>
-        <p class="exp-desc">${exp.desc}</p>
-        <div class="exp-tags">${exp.tags.map(t => `<span class="exp-tag">${t}</span>`).join("")}</div>
+experiences.forEach((exp, i) => {
+  const card = document.createElement("div");
+  card.className = "exp-card";
+  card.style.animationDelay = `${i * 0.1}s`;
+  card.innerHTML = `
+    <div class="exp-dot">${i + 1}</div>
+    <div class="exp-body">
+      <div class="exp-meta">
+        <span class="exp-company">${exp.company}</span>
+        <span class="exp-period">${exp.period}</span>
       </div>
-    `;
-    timeline.appendChild(card);
-  });
-}
+      <div class="exp-role">${exp.role}</div>
+      <p class="exp-desc">${exp.desc}</p>
+      <div class="exp-tags">${exp.tags.map(t => `<span class="exp-tag">${t}</span>`).join("")}</div>
+    </div>
+  `;
+  timeline.appendChild(card);
+});
 
-// ===== ADMIN PANEL OVERLAY INDEPENDENT =====
-const ADMIN_PASSWORD = "18-Maret-2008";
+// ===== ADMIN PANEL =====
+const ADMIN_PASSWORD = "raka2025"; // Ganti password kamu di sini
+
 const adminOverlay = document.getElementById("adminOverlay");
 const adminClose = document.getElementById("adminClose");
 const adminLogin = document.getElementById("adminLogin");
@@ -155,69 +150,97 @@ const adminDashboard = document.getElementById("adminDashboard");
 const adminLoginBtn = document.getElementById("adminLoginBtn");
 const adminPass = document.getElementById("adminPass");
 const loginError = document.getElementById("loginError");
+let adminLoggedIn = false;
 
-if (adminClose) {
-  adminClose.addEventListener("click", () => adminOverlay.classList.add("hidden"));
-}
+adminClose.addEventListener("click", () => {
+  adminOverlay.classList.add("hidden");
+});
 
-if (adminLoginBtn) {
-  adminLoginBtn.addEventListener("click", () => {
-    if (adminPass.value === ADMIN_PASSWORD) {
-      adminLogin.classList.add("hidden");
-      adminDashboard.classList.remove("hidden");
-      loginError.classList.add("hidden");
-      if (typeof window.firebaseFetchManage === "function") window.firebaseFetchManage(loadManageList);
-    } else {
-      loginError.classList.remove("hidden");
-      adminPass.value = "";
-    }
-  });
-}
+adminLoginBtn.addEventListener("click", () => {
+  if (adminPass.value === ADMIN_PASSWORD) {
+    adminLoggedIn = true;
+    adminLogin.classList.add("hidden");
+    adminDashboard.classList.remove("hidden");
+    loginError.classList.add("hidden");
+    loadManageList();
+  } else {
+    loginError.classList.remove("hidden");
+    adminPass.value = "";
+  }
+});
 
-if (adminPass) {
-  adminPass.addEventListener("keydown", e => {
-    if (e.key === "Enter") adminLoginBtn.click();
-  });
-}
+adminPass.addEventListener("keydown", e => {
+  if (e.key === "Enter") adminLoginBtn.click();
+});
 
+// Admin Tabs
 document.querySelectorAll(".admin-tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".admin-tab-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     document.querySelectorAll(".admin-tab-content").forEach(c => c.classList.add("hidden"));
     document.getElementById(`atab-${btn.dataset.atab}`).classList.remove("hidden");
-    if (btn.dataset.atab === "manage" && typeof window.firebaseFetchManage === "function") {
-      window.firebaseFetchManage(loadManageList);
-    }
+    if (btn.dataset.atab === "manage") loadManageList();
   });
 });
 
-function loadManageList(items) {
-  const list = document.getElementById("manageList");
-  if (!list) return;
-  list.innerHTML = "";
-  if (items.length === 0) {
-    list.innerHTML = `<p style="color:var(--text3);font-size:.85rem;text-align:center;">Belum ada foto.</p>`;
+// Upload foto
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+  const category = document.getElementById("uploadCategory").value;
+  const title = document.getElementById("uploadTitle").value.trim();
+  const url = document.getElementById("uploadUrl").value.trim();
+  const msg = document.getElementById("uploadMsg");
+
+  if (!title || !url) {
+    msg.textContent = "Judul dan URL wajib diisi!";
+    msg.className = "error";
+    msg.classList.remove("hidden");
     return;
   }
-  items.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "manage-item";
-    div.innerHTML = `
-      <img src="${item.url}" alt="${item.title}" onerror="this.style.display='none'"/>
-      <div class="manage-item-info">
-        <p>${item.title}</p>
-        <small>${item.category === "sertif" ? "Sertifikat" : "Project"}</small>
-      </div>
-      <button class="manage-item-del" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-    `;
-    div.querySelector(".manage-item-del").addEventListener("click", async () => {
-      if (!confirm(`Hapus foto "${item.title}"?`)) return;
-      if (typeof window.firebaseDeleteGallery === "function") {
+
+  try {
+    await window.firebaseAddGallery(category, title, url);
+    msg.textContent = "✓ Foto berhasil ditambahkan!";
+    msg.className = "success";
+    msg.classList.remove("hidden");
+    document.getElementById("uploadTitle").value = "";
+    document.getElementById("uploadUrl").value = "";
+    setTimeout(() => msg.classList.add("hidden"), 3000);
+  } catch (err) {
+    msg.textContent = "Gagal menyimpan. Cek koneksi.";
+    msg.className = "error";
+    msg.classList.remove("hidden");
+  }
+});
+
+// Manage list
+function loadManageList() {
+  const list = document.getElementById("manageList");
+  list.innerHTML = `<p style="color:var(--text3);font-size:.85rem;">Memuat...</p>`;
+
+  window.firebaseFetchManage((items) => {
+    list.innerHTML = "";
+    if (items.length === 0) {
+      list.innerHTML = `<p style="color:var(--text3);font-size:.85rem;text-align:center;">Belum ada foto.</p>`;
+      return;
+    }
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "manage-item";
+      div.innerHTML = `
+        <img src="${item.url}" alt="${item.title}" onerror="this.style.display='none'"/>
+        <div class="manage-item-info">
+          <p>${item.title}</p>
+          <small>${item.category === "sertif" ? "Sertifikat" : "Project"}</small>
+        </div>
+        <button class="manage-item-del" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+      `;
+      div.querySelector(".manage-item-del").addEventListener("click", async () => {
+        if (!confirm(`Hapus foto "${item.title}"?`)) return;
         await window.firebaseDeleteGallery(item.id);
-      }
+      });
+      list.appendChild(div);
     });
-    list.appendChild(div);
   });
 }
 
