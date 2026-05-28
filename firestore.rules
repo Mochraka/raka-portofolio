@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Reviews: siapa saja bisa baca & tambah, tapi tidak bisa hapus/edit
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['username','rating','review','timestamp'])
+                    && request.resource.data.username is string
+                    && request.resource.data.username.size() <= 100
+                    && request.resource.data.review is string
+                    && request.resource.data.review.size() <= 500;
+      allow update, delete: if false;
+    }
+
+    // Gallery: siapa saja bisa baca, tapi hanya bisa dikelola lewat admin panel
+    // (keamanan dasar karena password di client-side)
+    match /gallery/{itemId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

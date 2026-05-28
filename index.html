@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RAKA — Network Engineer & SysAdmin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav id="navbar">
+  <div class="nav-logo">RAKA<span class="dot">.</span></div>
+  <ul class="nav-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#comments">Comment</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+      <i class="fa-solid fa-moon" id="themeIcon"></i>
+    </button>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#hero">Home</a>
+  <a href="#about">About</a>
+  <a href="#gallery">Gallery</a>
+  <a href="#experience">Experience</a>
+  <a href="#comments">Comment</a>
+</div>
+
+<!-- ===== HERO ===== -->
+<section id="hero">
+  <!-- Ganti URL di bawah dengan link foto background kamu -->
+  <div class="hero-bg" style="background-image: url('images/hero-bg.jpg')"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-tag">Network Engineer & SysAdmin</p>
+    <h1>MOCHAMMAD<br><span class="hero-accent">RAKA MAULANA</span></h1>
+    <p class="hero-sub">NOC & SysAdmin · INARA DIGITAL TELEKOMUNIKASI · Passionate in Server, Network & IoT</p>
+    <div class="hero-socials">
+      <a href="https://www.facebook.com/share/1BXgR3JeE7/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+      <a href="https://youtube.com/@rakamaulana2286" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+      <a href="https://www.instagram.com/raka.m4ulana" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+      <a href="https://www.linkedin.com/in/raka-maulana-021296308" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+      <a href="mailto:mraka7852@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+    </div>
+    <a href="#about" class="hero-cta">Lihat Lebih <i class="fa-solid fa-arrow-down"></i></a>
+  </div>
+  <div class="hero-scroll-hint">SCROLL</div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about">
+  <div class="container">
+    <div class="section-label">// 01</div>
+    <h2 class="section-title">About Me</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>Saya seorang Freelancer IT dengan minat besar dalam teknologi, terutama dalam <strong>Server management</strong>, <strong>rekayasa jaringan</strong>, dan <strong>pengembangan IoT</strong>. Ketekunan dan rasa ingin tahu adalah modal utama saya dalam mengejar pengetahuan di dunia IT.</p>
+        <ul class="about-info">
+          <li><span>Nama</span><strong>Mochammad Raka Maulana</strong></li>
+          <li><span>Lahir</span><strong>18 Maret 2008</strong></li>
+          <li><span>Perusahaan</span><strong>INARA DIGITAL TELEKOMUNIKASI</strong></li>
+          <li><span>Email</span><strong>mraka7852@gmail.com</strong></li>
+        </ul>
+      </div>
+      <div class="about-skills">
+        <div class="skill-card">
+          <i class="fa-solid fa-server"></i>
+          <h4>Server Management</h4>
+          <p>Linux server, Windows server, Virtualisasi , Container</p>
+        </div>
+        <div class="skill-card">
+          <i class="fa-solid fa-network-wired"></i>
+          <h4>Network Engineer</h4>
+          <p>Routing, Switching, Cisco, Mikrotik</p>
+        </div>
+        <div class="skill-card">
+          <i class="fa-solid fa-microchip"></i>
+          <h4>IoT Development</h4>
+          <p>Remote Device, Otomasi Perangkat</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GALLERY ===== -->
+<section id="gallery">
+  <div class="container">
+    <div class="section-label">// 02</div>
+    <h2 class="section-title">Gallery</h2>
+    <div class="gallery-tabs">
+      <button class="tab-btn active" data-tab="sertif">Sertifikat</button>
+      <button class="tab-btn" data-tab="project">Project</button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <div class="gallery-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat foto...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXPERIENCE ===== -->
+<section id="experience">
+  <div class="container">
+    <div class="section-label">// 03</div>
+    <h2 class="section-title">Experience</h2>
+    <div class="exp-timeline" id="expTimeline">
+      <!-- Diisi dari JS / bisa hardcode di sini -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== COMMENTS ===== -->
+<section id="comments">
+  <div class="container">
+    <div class="section-label">// 04</div>
+    <h2 class="section-title">Leave a Comment</h2>
+    <div class="comments-grid">
+      <div class="comment-form-wrap">
+        <form id="reviewForm">
+          <div class="input-group">
+            <input type="text" id="name" placeholder="Nama kamu" required/>
+          </div>
+          <div class="input-group">
+            <label>Rating</label>
+            <div class="star-rating" id="starRating">
+              <span data-val="1">★</span>
+              <span data-val="2">★</span>
+              <span data-val="3">★</span>
+              <span data-val="4">★</span>
+              <span data-val="5">★</span>
+            </div>
+            <input type="hidden" id="rating" value="5"/>
+          </div>
+          <div class="input-group">
+            <textarea id="message" placeholder="Tulis komentarmu..." rows="4" required></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Kirim <i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+      </div>
+      <div class="reviews-list" id="reviews-container">
+        <div class="gallery-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat komentar...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">RAKA<span class="dot">.</span></div>
+    <p>© 2025 Mochammad Raka Maulana. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="https://www.facebook.com/share/1BXgR3JeE7/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+      <a href="https://youtube.com/@rakamaulana2286" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+      <a href="https://www.instagram.com/raka.m4ulana" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+      <a href="mailto:mraka7852@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== ADMIN PANEL (hidden) ===== -->
+<div id="adminOverlay" class="admin-overlay hidden">
+  <div class="admin-modal">
+    <button class="admin-close" id="adminClose"><i class="fa-solid fa-xmark"></i></button>
+    <h3>Admin Panel</h3>
+
+    <!-- Login -->
+    <div id="adminLogin">
+      <input type="password" id="adminPass" placeholder="Password admin"/>
+      <button id="adminLoginBtn" class="btn-submit">Login</button>
+      <p id="loginError" class="error-msg hidden">Password salah!</p>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="adminDashboard" class="hidden">
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" data-atab="upload">Upload Foto</button>
+        <button class="admin-tab-btn" data-atab="manage">Kelola Foto</button>
+      </div>
+
+      <!-- Upload -->
+      <div id="atab-upload" class="admin-tab-content">
+        <div class="input-group">
+          <label>Kategori</label>
+          <select id="uploadCategory">
+            <option value="sertif">Sertifikat</option>
+            <option value="project">Project</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Judul Foto</label>
+          <input type="text" id="uploadTitle" placeholder="Judul / nama sertifikat"/>
+        </div>
+        <div class="input-group">
+          <label>URL Foto (dari Firebase Storage / Google Drive / Imgur)</label>
+          <input type="text" id="uploadUrl" placeholder="https://..."/>
+        </div>
+        <button id="uploadBtn" class="btn-submit">Simpan <i class="fa-solid fa-floppy-disk"></i></button>
+        <p id="uploadMsg" class="hidden"></p>
+      </div>
+
+      <!-- Manage -->
+      <div id="atab-manage" class="admin-tab-content hidden">
+        <div id="manageList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin trigger (ketik "admin" di mana saja) -->
+<div id="adminTrigger" title="Admin Panel" onclick="document.getElementById('adminOverlay').classList.remove('hidden')">
+  <i class="fa-solid fa-lock"></i>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox hidden">
+  <div class="lightbox-overlay" onclick="closeLightbox()"></div>
+  <img id="lightboxImg" src="" alt=""/>
+  <button class="lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
+<script type="module" src="js/firebase.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
