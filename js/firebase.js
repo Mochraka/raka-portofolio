@@ -11,24 +11,20 @@ const firebaseConfig = {
   appId: "1:789047344632:web:a6a6a67621b20bc9e0ea0d"
 };
 
-// Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ===== FUNGSI GLOBAL UNTUK UTILITY =====
-
-// 1. Simpan Foto Baru
+// 1. Simpan Foto Baru (Teks Base64)
 window.firebaseAddGallery = function(category, title, base64Url) {
-  const galleryRef = ref(db, 'gallery');
-  return push(galleryRef, {
+  return push(ref(db, 'gallery'), {
     category: category,
     title: title,
-    url: base64Url, // Menyimpan string Base64 gambar
+    url: base64Url,
     createdAt: Date.now()
   });
 };
 
-// 2. Ambil Foto untuk Galeri Utama
+// 2. Ambil Foto Galeri Utama
 window.firebaseFetchGallery = function(currentTab) {
   const galleryRef = ref(db, 'gallery');
   const grid = document.getElementById('galleryGrid');
@@ -74,12 +70,10 @@ window.firebaseFetchGallery = function(currentTab) {
 
 // 3. Ambil Foto untuk Kelola Admin
 window.firebaseFetchManage = function(callback) {
-  const galleryRef = ref(db, 'gallery');
-  onValue(galleryRef, (snapshot) => {
+  onValue(ref(db, 'gallery'), (snapshot) => {
     const data = snapshot.val();
     if (!data) { callback([]); return; }
-    const items = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-    callback(items);
+    callback(Object.keys(data).map(key => ({ id: key, ...data[key] })));
   });
 };
 
@@ -88,7 +82,7 @@ window.firebaseDeleteGallery = function(id) {
   return remove(ref(db, `gallery/${id}`));
 };
 
-// 5. Tambah Komentar
+// 5. Tambah Komentar Baru
 window.firebaseAddReview = function(username, rating, review) {
   return push(ref(db, 'reviews'), {
     name: username,
@@ -98,7 +92,7 @@ window.firebaseAddReview = function(username, rating, review) {
   });
 };
 
-// 6. Dengarkan Komentar (Realtime)
+// 6. Jalankan Pemantauan Komentar Secara Global
 window.listenToReviews = function() {
   const container = document.getElementById('reviews-container');
   if (!container) return;
@@ -130,6 +124,6 @@ window.listenToReviews = function() {
   });
 };
 
-// Jalankan listener pertama kali saat file termuat
+// Jalankan otomatis begitu modul siap
 window.listenToReviews();
 window.firebaseFetchGallery('sertif');

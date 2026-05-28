@@ -35,6 +35,21 @@ mobileMenu.querySelectorAll("a").forEach(a => {
   a.addEventListener("click", () => mobileMenu.classList.remove("open"));
 });
 
+// ===== LIGHTBOX (TOMBOL X) FIX =====
+const lightbox = document.getElementById("lightbox");
+const lightboxClose = document.getElementById("lightboxClose");
+if (lightboxClose && lightbox) {
+  lightboxClose.addEventListener("click", () => {
+    lightbox.classList.add("hidden");
+  });
+  // Tutup jika klik area luar gambar
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) {
+      lightbox.classList.add("hidden");
+    }
+  });
+}
+
 // ===== GALLERY TABS =====
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -46,13 +61,13 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
-// ===== LOGIKA UPLOAD FOTO (MENGGUNAKAN FILE JPG/PNG) =====
+// ===== LOGIKA UPLOAD FOTO (BASE64) =====
 const uploadBtn = document.getElementById("uploadBtn");
 if (uploadBtn) {
   uploadBtn.addEventListener("click", async () => {
     const category = document.getElementById("uploadCategory").value;
     const title = document.getElementById("uploadTitle").value.trim();
-    const fileInput = document.getElementById("uploadFile"); // Menggunakan elemen input file
+    const fileInput = document.getElementById("uploadFile");
     const msg = document.getElementById("uploadMsg");
 
     if (!title || !fileInput.files[0]) {
@@ -64,7 +79,6 @@ if (uploadBtn) {
 
     const file = fileInput.files[0];
     
-    // Validasi ukuran file (Opsional, disarankan < 1.5MB agar database awet)
     if (file.size > 1500000) {
       msg.textContent = "Ukuran file terlalu besar! Maksimal 1.5 MB.";
       msg.style.color = "#ff4a4a";
@@ -76,7 +90,6 @@ if (uploadBtn) {
     msg.style.color = "#ffcc00";
     msg.classList.remove("hidden");
 
-    // Konversi file gambar ke string Base64
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async () => {
@@ -89,7 +102,6 @@ if (uploadBtn) {
           msg.textContent = "✓ Foto berhasil ditambahkan!";
           msg.style.color = "#00ffcc";
 
-          // Reset Form
           document.getElementById("uploadTitle").value = "";
           fileInput.value = ""; 
           
@@ -99,7 +111,7 @@ if (uploadBtn) {
         }
       } catch (err) {
         console.error(err);
-        msg.textContent = "Gagal menyimpan. Cek Console browser.";
+        msg.textContent = "Gagal menyimpan. Cek Console.";
         msg.style.color = "#ff4a4a";
       }
     };
