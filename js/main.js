@@ -190,67 +190,6 @@ document.querySelectorAll(".admin-tab-btn").forEach(btn => {
   });
 });
 
-// Upload foto
-// Upload foto (Sudah ditambahkan fitur auto-convert link Google Drive)
-// Upload foto (Sudah diperbaiki dan ditambahkan proteksi error)
-document.getElementById("uploadBtn").addEventListener("click", async () => {
-  const category = document.getElementById("uploadCategory").value;
-  const title = document.getElementById("uploadTitle").value.trim();
-  let url = document.getElementById("uploadUrl").value.trim();
-  const msg = document.getElementById("uploadMsg");
-
-  if (!title || !url) {
-    msg.textContent = "Judul dan URL wajib diisi!";
-    msg.className = "error";
-    msg.classList.remove("hidden");
-    return;
-  }
-
-  // ===== CONVERT LINK GOOGLE DRIVE KE DIRECT LINK STABIL =====
-  if (url.includes("drive.google.com")) {
-    let fileId = "";
-    
-    if (url.includes("/file/d/")) {
-      fileId = url.split("/file/d/")[1].split("/")[0];
-    } else if (url.includes("id=")) {
-      fileId = url.split("id=")[1].split("&")[0];
-    }
-
-    if (fileId) {
-      // Menggunakan format uc?export=download yang paling kompatibel dengan Firebase & tag img
-      url = `https://docs.google.com/uc?export=download&id=${fileId}`;
-    } else {
-      msg.textContent = "Format link Drive tidak valid!";
-      msg.className = "error";
-      msg.classList.remove("hidden");
-      return;
-    }
-  }
-  // ==========================================================
-
-  try {
-    // Pastikan fungsi Firebase sudah siap dipanggil
-    if (typeof window.firebaseAddGallery !== "function") {
-      throw new Error("Fungsi window.firebaseAddGallery belum terdefinisi di firebase.js");
-    }
-
-    await window.firebaseAddGallery(category, title, url);
-    
-    msg.textContent = "✓ Foto berhasil ditambahkan!";
-    msg.className = "success";
-    msg.classList.remove("hidden");
-    
-    document.getElementById("uploadTitle").value = "";
-    document.getElementById("uploadUrl").value = "";
-    setTimeout(() => msg.classList.add("hidden"), 3000);
-  } catch (err) {
-    console.error("Detail Error:", err);
-    msg.textContent = "Gagal menyimpan. Cek Console browser (F12).";
-    msg.className = "error";
-    msg.classList.remove("hidden");
-  }
-});
-
 // Manage list
 function loadManageList() {
   const list = document.getElementById("manageList");
