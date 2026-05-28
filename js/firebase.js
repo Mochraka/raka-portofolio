@@ -15,76 +15,74 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ===== PROSES UPLOAD FOTO LANGSUNG DI SINI =====
-document.addEventListener("DOMContentLoaded", () => {
+// ===== LOGIKA TOMBOL UPLOAD LANGSUNG DI SINI =====
+function initUploadFeature() {
   const uploadBtn = document.getElementById("uploadBtn");
-  
-  if (uploadBtn) {
-    // Hapus event listener lama jika ada, lalu pasang yang baru
-    uploadBtn.replaceWith(uploadBtn.cloneNode(true));
-    
-    // Ambil ulang elemen setelah di-clone
-    document.getElementById("uploadBtn").addEventListener("click", async () => {
-      const category = document.getElementById("uploadCategory").value;
-      const title = document.getElementById("uploadTitle").value.trim();
-      let url = document.getElementById("uploadUrl").value.trim();
-      const msg = document.getElementById("uploadMsg");
+  if (!uploadBtn) return;
 
-      if (!title || !url) {
-        msg.textContent = "Judul dan URL wajib diisi!";
+  // Pasang event listener langsung ke tombol
+  uploadBtn.addEventListener("click", async () => {
+    const category = document.getElementById("uploadCategory").value;
+    const title = document.getElementById("uploadTitle").value.trim();
+    let url = document.getElementById("uploadUrl").value.trim();
+    const msg = document.getElementById("uploadMsg");
+
+    if (!title || !url) {
+      msg.textContent = "Judul dan URL wajib diisi!";
+      msg.style.color = "#ff4a4a";
+      msg.classList.remove("hidden");
+      return;
+    }
+
+    // ===== AUTO CONVERT LINK GOOGLE DRIVE =====
+    if (url.includes("drive.google.com")) {
+      let fileId = "";
+      if (url.includes("/file/d/")) {
+        fileId = url.split("/file/d/")[1].split("/")[0];
+      } else if (url.includes("id=")) {
+        fileId = url.split("id=")[1].split("&")[0];
+      }
+
+      if (fileId) {
+        url = `https://docs.google.com/uc?export=download&id=${fileId}`;
+      } else {
+        msg.textContent = "Format link Drive tidak valid!";
         msg.style.color = "#ff4a4a";
         msg.classList.remove("hidden");
         return;
       }
+    }
 
-      // ===== CONVERT LINK GOOGLE DRIVE KE DIRECT LINK =====
-      if (url.includes("drive.google.com")) {
-        let fileId = "";
-        if (url.includes("/file/d/")) {
-          fileId = url.split("/file/d/")[1].split("/")[0];
-        } else if (url.includes("id=")) {
-          fileId = url.split("id=")[1].split("&")[0];
-        }
+    // ===== PROSES SIMPAN KE FIREBASE =====
+    try {
+      const galleryRef = ref(db, 'gallery');
+      await push(galleryRef, {
+        category: category,
+        title: title,
+        url: url,
+        createdAt: Date.now()
+      });
 
-        if (fileId) {
-          url = `https://docs.google.com/uc?export=download&id=${fileId}`;
-        } else {
-          msg.textContent = "Format link Drive tidak valid!";
-          msg.style.color = "#ff4a4a";
-          msg.classList.remove("hidden");
-          return;
-        }
-      }
+      // Tampilkan status sukses neon cyan khas sysadmin
+      msg.textContent = "✓ Foto berhasil ditambahkan!";
+      msg.style.color = "#00ffcc";
+      msg.classList.remove("hidden");
 
-      // ===== PROSES SIMPAN KE REALTIME DATABASE =====
-      try {
-        const galleryRef = ref(db, 'gallery');
-        await push(galleryRef, {
-          category: category,
-          title: title,
-          url: url,
-          createdAt: Date.now()
-        });
+      // Reset Form
+      document.getElementById("uploadTitle").value = "";
+      document.getElementById("uploadUrl").value = "";
+      setTimeout(() => msg.classList.add("hidden"), 3000);
 
-        msg.textContent = "✓ Foto berhasil ditambahkan!";
-        msg.style.color = "#00ffcc";
-        msg.classList.remove("hidden");
+    } catch (err) {
+      console.error(err);
+      msg.textContent = "Gagal menyimpan. Pastikan Rules DB sudah true.";
+      msg.style.color = "#ff4a4a";
+      msg.classList.remove("hidden");
+    }
+  });
+}
 
-        document.getElementById("uploadTitle").value = "";
-        document.getElementById("uploadUrl").value = "";
-        setTimeout(() => msg.classList.add("hidden"), 3000);
-
-      } catch (err) {
-        console.error("Firebase Error:", err);
-        msg.textContent = "Gagal menyimpan ke Firebase. Cek Aturan/Rules DB.";
-        msg.style.color = "#ff4a4a";
-        msg.classList.remove("hidden");
-      }
-    });
-  }
-});
-
-// ===== FUNGSI UNTUK MENAMPILKAN GALERI DI HALAMAN UTAMA =====
+// ===== FUNGSI AMBIL GALERI UNTUK HALAMAN UTAMA =====
 window.firebaseFetchGallery = function(currentTab) {
   const galleryRef = ref(db, 'gallery');
   const grid = document.getElementById('galleryGrid');
@@ -128,14 +126,12 @@ window.firebaseFetchGallery = function(currentTab) {
   });
 };
 
-// ===== FUNGSI KELOLA FOTO DI PANEL ADMIN =====
+// ===== INTERFACES LAIN UNTUK MAIN.JS =====
 window.firebaseFetchManage = function(callback) {
-  const galleryRef = ref(db, 'gallery');
-  onValue(galleryRef, (snapshot) => {
+  onValue(ref(db, 'gallery'), (snapshot) => {
     const data = snapshot.val();
     if (!data) { callback([]); return; }
-    const items = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-    callback(items);
+    callback(Object.keys(data).map(key => ({ id: key, ...data[key] })));
   });
 };
 
@@ -143,49 +139,13 @@ window.firebaseDeleteGallery = function(id) {
   return remove(ref(db, `gallery/${id}`));
 };
 
-// ===== LOGIKA REVIEW KOMENTAR =====
 window.firebaseAddReview = function(username, rating, review) {
-  return push(ref(db, 'reviews'), {
-    name: username,
-    rating: parseInt(rating),
-    message: review,
-    createdAt: Date.now()
-  });
+  return push(ref(db, 'reviews'), { name: username, rating: parseInt(rating), message: review, createdAt: Date.now() });
 };
 
-function listenToReviews() {
-  const container = document.getElementById('reviews-container');
-  if (!container) return;
-
-  onValue(ref(db, 'reviews'), (snapshot) => {
-    container.innerHTML = "";
-    const data = snapshot.val();
-    if (!data) {
-      container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Belum ada komentar.</p>';
-      return;
-    }
-
-    const list = Object.keys(data).map(key => data[key]);
-    list.sort((a, b) => b.createdAt - a.createdAt);
-
-    list.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'review-card';
-      const stars = '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating);
-      card.innerHTML = `
-        <div class="review-header">
-          <span class="review-name">${item.name}</span>
-          <span class="review-stars" style="color:#ffcc00;">${stars}</span>
-        </div>
-        <p class="review-msg">${item.message}</p>
-      `;
-      container.appendChild(card);
-    });
-  });
+// Eksekusi saat DOM siap
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => { initUploadFeature(); });
+} else {
+  initUploadFeature();
 }
-
-// Load default data
-document.addEventListener("DOMContentLoaded", () => {
-  window.firebaseFetchGallery('sertif');
-  listenToReviews();
-});
