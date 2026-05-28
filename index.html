@@ -229,10 +229,16 @@
 </div>
 
 <!-- Lightbox -->
-<div id="lightbox" class="lightbox hidden">
-  <div class="lightbox-overlay" onclick="closeLightbox()"></div>
-  <img id="lightboxImg" src="" alt=""/>
-  <button class="lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+<div id="lightbox" class="lightbox hidden" onclick="if(event.target === this) this.classList.add('hidden')">
+  
+  <button id="lightboxClose" class="lightbox-close" onclick="document.getElementById('lightbox').classList.add('hidden')">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  
+  <div class="lightbox-content">
+    <img id="lightboxImg" src="" alt="Preview Gambar" />
+  </div>
+
 </div>
 
 <script type="module" src="js/firebase.js?v=7.0"></script>
