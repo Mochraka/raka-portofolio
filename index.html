@@ -202,14 +202,15 @@
             <option value="project">Project</option>
           </select>
         </div>
-        <div class="input-group">
-          <label>Judul Foto</label>
-          <input type="text" id="uploadTitle" placeholder="Judul / nama sertifikat"/>
-        </div>
-        <div class="input-group">
-          <label>URL Foto (dari Firebase Storage / Google Drive / Imgur)</label>
-          <input type="text" id="uploadUrl" placeholder="https://..."/>
-        </div>
+        <div class="admin-form-group">
+  <label for="uploadTitle">Judul</label>
+  <input type="text" id="uploadTitle" placeholder="Nama sertifikat atau project..." />
+</div>
+
+<div class="admin-form-group">
+  <label for="uploadFile">Pilih Foto (JPG / PNG)</label>
+  <input type="file" id="uploadFile" accept="image/jpeg, image/jpg, image/png" style="background: var(--bg2); padding: 8px; border-radius: 6px; width: 100%; border: 1px solid var(--border);" />
+</div>
         <button id="uploadBtn" class="btn-submit">Simpan <i class="fa-solid fa-floppy-disk"></i></button>
         <p id="uploadMsg" class="hidden"></p>
       </div>
