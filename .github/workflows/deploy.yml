@@ -9,9 +9,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-      - name: Install Firebase CLI
+      # Jika Anda pakai Vite/React, aktifkan baris di bawah ini dengan menghapus tanda '#'
+      # - name: Install and Build
+      #   run: npm install && npm run build
+
+       Caviar - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
       - name: Deploy to Firebase
