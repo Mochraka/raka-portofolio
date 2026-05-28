@@ -229,23 +229,25 @@
 </div>
 
 <!-- Lightbox -->
-<div id="lightbox" class="lightbox hidden" onclick="if(event.target === this) { this.classList.add('hidden'); if(window.closeLightboxAction) window.closeLightboxAction(); }">
+<div id="lightbox" class="lightbox hidden">
   
-  <button id="lightboxClose" class="lightbox-close" onclick="document.getElementById('lightbox').classList.add('hidden'); if(window.closeLightboxAction) window.closeLightboxAction();" ontouchstart="document.getElementById('lightbox').classList.add('hidden'); if(window.closeLightboxAction) window.closeLightboxAction(); event.preventDefault();">
+  <button id="lightboxClose" class="lightbox-close" aria-label="Close">
     <i class="fa-solid fa-xmark"></i>
   </button>
 
-  <button id="lightboxPrev" class="lightbox-nav prev-btn">
-    <i class="fa-solid fa-chevron-left"></i>
-  </button>
-
-  <div class="lightbox-content">
-    <img id="lightboxImg" src="" alt="Preview Gambar" />
+  <div class="lightbox-wrapper">
+    <button id="lightboxPrev" class="lightbox-btn" aria-label="Previous">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    
+    <div class="lightbox-content">
+      <img id="lightboxImg" src="" alt="Preview" />
+    </div>
+    
+    <button id="lightboxNext" class="lightbox-btn" aria-label="Next">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
   </div>
-
-  <button id="lightboxNext" class="lightbox-nav next-btn">
-    <i class="fa-solid fa-chevron-right"></i>
-  </button>
 
 </div>
 <script type="module" src="js/firebase.js?v=7.0"></script>

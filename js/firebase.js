@@ -29,6 +29,7 @@ window.firebaseAddGallery = function(category, title, base64Url) {
 let currentGalleryItems = [];
 let currentActiveIndex = 0;
 
+// 1. Ambil Foto Galeri Utama
 window.firebaseFetchGallery = function(currentTab) {
   const galleryRef = ref(db, 'gallery');
   const grid = document.getElementById('galleryGrid');
@@ -43,7 +44,6 @@ window.firebaseFetchGallery = function(currentTab) {
     }
 
     const items = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-    // Simpan item yang lolos filter ke array global untuk navigasi next/prev
     currentGalleryItems = items.filter(item => item.category === currentTab);
 
     if (currentGalleryItems.length === 0) {
@@ -62,24 +62,21 @@ window.firebaseFetchGallery = function(currentTab) {
         </div>
       `;
       
-      // Menggunakan kombinasi klik ramah mobile
-      const openLightbox = () => {
+      el.addEventListener('click', () => {
         const lb = document.getElementById('lightbox');
         const lbImg = document.getElementById('lightboxImg');
         if (lb && lbImg) {
-          currentActiveIndex = index; // Catat indeks foto saat ini
+          currentActiveIndex = index;
           lbImg.src = item.url;
           lb.classList.remove('hidden');
         }
-      };
-
-      el.addEventListener('click', openLightbox);
+      });
       grid.appendChild(el);
     });
   });
 };
 
-// Fungsi navigasi Next & Prev di Lightbox
+// 2. Fungsi Navigasi Geser Gambar
 function navigateLightbox(direction) {
   if (currentGalleryItems.length === 0) return;
   
@@ -95,27 +92,37 @@ function navigateLightbox(direction) {
   }
 }
 
-// Daftarkan event listener untuk tombol panah kiri-kanan setelah dokumen siap
-function initLightboxNav() {
-  const prevBtn = document.getElementById('lightboxPrev');
-  const nextBtn = document.getElementById('lightboxNext');
-  
-  if (prevBtn) {
-    prevBtn.onclick = (e) => { e.stopPropagation(); navigateLightbox('prev'); };
-    prevBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); navigateLightbox('prev'); };
-  }
-  if (nextBtn) {
-    nextBtn.onclick = (e) => { e.stopPropagation(); navigateLightbox('next'); };
-    nextBtn.ontouchstart = (e) => { e.stopPropagation(); e.preventDefault(); navigateLightbox('next'); };
-  }
-}
+// 3. EVENT LISTENER ANTI-GAGAL UNTUK HP DAN LAPTOP
+// Menggunakan 'pointerdown' agar instan merespon sentuhan jari/touch di HP sebelum delay click terjadi
+document.addEventListener('pointerdown', (e) => {
+  const lb = document.getElementById('lightbox');
+  if (!lb || lb.classList.contains('hidden')) return;
 
-// Jalankan initLightboxNav secara otomatis
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initLightboxNav);
-} else {
-  initLightboxNav();
-}
+  // Jika yang diklik adalah tombol close (X) atau ikon di dalamnya
+  if (e.target.id === 'lightboxClose' || e.target.closest('#lightboxClose')) {
+    lb.classList.add('hidden');
+    return;
+  }
+
+  // Jika yang diklik adalah tombol Kiri
+  if (e.target.id === 'lightboxPrev' || e.target.closest('#lightboxPrev')) {
+    e.stopPropagation();
+    navigateLightbox('prev');
+    return;
+  }
+
+  // Jika yang diklik adalah tombol Kanan
+  if (e.target.id === 'lightboxNext' || e.target.closest('#lightboxNext')) {
+    e.stopPropagation();
+    navigateLightbox('next');
+    return;
+  }
+
+  // Jika yang diklik adalah area latar belakang kosong di luar gambar, ikut tutup lightbox
+  if (e.target === lb) {
+    lb.classList.add('hidden');
+  }
+});
 // 3. Ambil Foto untuk Kelola Admin
 window.firebaseFetchManage = function(callback) {
   onValue(ref(db, 'gallery'), (snapshot) => {
