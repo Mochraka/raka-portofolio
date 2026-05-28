@@ -9,6 +9,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDczelrrthjduPoMdwCh155IgrR3oE2xOk",
   authDomain: "reviews-1aeab.firebaseapp.com",
   projectId: "reviews-1aeab",
+  databaseURL: "https://reviews-1aeab-default-rtdb.firebaseio.com/",
   storageBucket: "reviews-1aeab.firebasestorage.app",
   messagingSenderId: "789047344632",
   appId: "1:789047344632:web:a6a6a67621b20bc9e0ea0d"
